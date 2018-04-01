@@ -1,0 +1,10 @@
+{
+  "name": "SendToTwilio",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Sean",
+  "license": "MIT",
+  "dependencies": {
+    "twilio": "^3.14.0"
+  }
+}

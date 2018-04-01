@@ -1,0 +1,6 @@
+ACCOUNT_SID =  //your twilio ACCOUNT SID
+ACCOUNT_TOKEN =  //yout twilio AUTH TOKEN
+
+FROM_TWILIO_SNS = //FROM SNS queue arn
+TO_TWILIO_SNS = TO //SNS queue arn
+TWILIO_APP_TABLENAME = //TableName you created

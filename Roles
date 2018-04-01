@@ -1,0 +1,7 @@
+Create 2 Roles for the lambda in the IAM 
+
+LambdaSNS 
+Add the FULL SNS, FULL Cloudwatch
+
+LambdaSNSandDynamo
+Add Full SNS, FULL Cloudwatch, FULL Dynamo
