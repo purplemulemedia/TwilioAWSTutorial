@@ -1,3 +1,4 @@
 Create a Dynamo table to store the phones and names of your users
 
-Make From the primary key Leave it as a string
+Make From the primary key "From" 
+Leave it as a string
