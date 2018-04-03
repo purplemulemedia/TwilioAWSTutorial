@@ -2,9 +2,151 @@ Code for tutorial on creating a simple txt bot using Twilio and AWS.
 
 
 
-Prereq
+Pre req
 
 1. Twilio Account
 2. AWS Account
+3. Nodejs
+4. NPM or Yarn
+
+Overview:
+End User (Jane) sends a txt message to your Twilio #.  
+Twilio runs a web hook and sends a post to an AWS API Gateway endpoint.
+The API Gateway sends the post data to "RecieveFromTwilio" lambda function.
+"RecieveFromTwilio takes the data and puts it on an SNS Topic "FromTwilio"
+"ProcessTxtMessage" is listening to the "FromTwilio" Topic and processes the message
+"ProcessTxtMessage" builds a response txt message and sends to the SNS Topic "ToTwilio"
+"SendToTwilio" Lambda function listens to the "ToTwilio" topic and sends message to Twilio via the Twilio API
+Twilio sends the response to the End User (Jane) 
+
+Setup:
+
+On Twilio:
+1. From the Twilio dashboard note your SID and Secret Token you will need them to connect AWS to Twilio
+2. Get a new phone number from Twilio make sure it supports SMS.
+
+On AWS:
+
+Role Setup: //need to create roles so our lambdas can access SNS and Dynamo
+    Open AIN ? //check the name
+    Select New Role
+    Name Role "LambdaWithSNS"
+    Select Lambda Role
+    From policy list choose 
+        SNS Full access
+        Cloud Log Full Access?
+    Save
+
+    Create another role
+    Name Role "LambdaWithSNSandDynamo"
+    Select Lambda role
+    From policy list choose
+        SNS Full access
+        Cloudwatch Full Access
+        DynamoDB Full Access
+    Save
+
+
+
+SNS Setup:
+    Open AWS SNS
+    Create topic "FromTwilio"
+    Create topic "ToTwilio"
+    Note the ARN of each topic
+
+DynamoDB setup:
+    Open DynamoDB
+    Create Table
+    name table what you wish
+    Make Primary key "From" leave a string
+
+
+Lambda setup part one:
+    open Lambda
+    New function start from blank
+    Name function "RecieveFromTwilio"
+    Leave other defaults the same
+    Copy code from RecieveFromTwilio/recieveFromTwilio.js
+    paste into the index file in the code window
+    in Environment Variables area create a new Variables
+    ENV VAR name "FROM_TWILIO_SNS"
+    value is the ARN of the "FromTwilio" SNS Topic you created.
+    save the function.
+
+API Gateway Setup:
+    open API Gateway
+    Create new API
+    name what you like
+    create from scratch
+    clock in the smaller window on the / 
+    click dropdown and choose new method
+    choose post
+    Select connect to lambda ?
+    type name "RecieveFromTwilio" in lambda field.
+    Save
+    select "integration" ?
+    scroll down and select body mapping
+    create new body mapping
+    COntent type : application/x-www-form-urlencoded
+    for the body template copy the object from ApiGateway/BodyTemplate file
+    save
+    from dropdown select delpoy API
+    call state "Prod" and delpoy
+    select the post and you will see the endpoint url on the left
+    copy the endpoint url
+    Open Twilio
+    Manage your new phone #
+    replace demo webhook url with you newly created endpoint
+    save
+
+Congrats you have now setup AWS to listen to incoming txt and place them on an SNS Topic
+
+Part 2 Processing the txt
+
+Lambda :
+    open Lambda
+    New function start from blank
+    Name function "ProcessTxtMessage"
+    Leave other defaults the same
+    Copy code from ProcessTxtMessage/processTxtMessage.js
+    paste into the index file in the code window
+    in Environment Variables area create new Variables
+    ENV VAR name "TO_TWILIO_SNS"
+    value is the ARN of the "ToTwilio" SNS Topic you created.
+    ENV VAR name "TWILIO_APP_TABLENAME"
+    value is the Name of the DynamoDB table you created.
+    from the top select the SNS button to assign a topic as a trigger.
+    walk through the setup of the trigger and link it to the "FromTwilio" Topic
+    save the function.
+
+Part 3: Sending response txt
+    Open a console on your computer to SendToTwilioLambda/
+    this is a node package
+    Run yarn install   ..... npm install
+    This will create the modules directory
+    Open file explorer and zip all the files in the directory
+
+    Open AWS Lambda
+    New function start from blank
+    Name function "SendToTwilio"
+    Leave other defaults the same
+    For code dropdown choose upload zip
+    select the zip you just created.
+    in Environment Variables area create
+    ACCOUNT_SID the Twilio SID
+    ACCOUNT_TOKEN the Twilio Secret Token
+
+    Add trigger as SNS pick the "ToTwilio" topic
+
+    Save
+
+You have now setup a full round trip TXT application. 
+    
+
+
+
+
+
+
 
 
